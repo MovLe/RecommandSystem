@@ -7,7 +7,7 @@ import org.apache.spark.sql.{Dataset, SparkSession}
 
 /**
  * @ClassName StatisticsAlgoritm
- * @MethodDesc: TODO StatisticsAlgoritm功能介绍
+ * @MethodDesc: 离线统计方法
  * @Author Movle
  * @Date 5/26/20 3:23 下午
  * @Version 1.0
