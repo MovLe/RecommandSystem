@@ -73,10 +73,10 @@ object StatisticsApp extends App {
   ratings.createOrReplaceTempView("ratings")
 
   //统计 评分最多电影
-  staticsRecommender.rateMore(spark)
+//  staticsRecommender.rateMore(spark)
 
   //近期热门电影
-//  staticsRecommender.rateMoreRecently(spark)
+  staticsRecommender.rateMoreRecently(spark)
 
 //  staticsRecommender.genresTop10(spark)(movies)
 
