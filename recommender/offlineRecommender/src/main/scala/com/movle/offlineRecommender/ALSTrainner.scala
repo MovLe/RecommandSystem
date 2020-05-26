@@ -24,7 +24,7 @@ object ALSTrainner {
   def main(args: Array[String]): Unit = {
     val conf = Map(
       "spark.cores" -> "local[2]",
-      "mongo.uri" -> "mongodb://192.168.109.141:27017/recom",
+      "mongo.uri" -> "mongodb://192.168.31.141:27017/recom",
       "mongo.db" -> "recom"
     )
 
@@ -68,7 +68,7 @@ object ALSTrainner {
   }
 
   def getRmse(model: MatrixFactorizationModel, ratingRDD: RDD[Rating]) = {
-    //需要构造userProductsRDD
+    //需要构造userProductsRDD，通过真实值，和预测值来测误差
     val userMovies = ratingRDD.map(item => (item.user,item.product))
     val predictRating = model.predict(userMovies)
 
