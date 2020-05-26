@@ -89,7 +89,7 @@ object OfflineRecommender {
     //模型
     val model = ALS.train(trainData,rank,iterations,lambda)
 
-    //计算用户推荐矩阵
+    //计算离线用户推荐电影矩阵
 
     val userRDD = ratingRDD.map(_._1).distinct().cache()
 
@@ -98,7 +98,7 @@ object OfflineRecommender {
     //预测结果
     val preRatings = model.predict(userMovies)
 
-    //把预测结果写回mongodb
+
     //userRecs用户矩阵
     val userRecs = preRatings
       .filter(_.rating > 0)
@@ -110,42 +110,44 @@ object OfflineRecommender {
             .map(x => Recommendation(x._1,x._2)))
       }.toDF
 
-    userRecs.write
-      .option("uri",mongoConfig.uri)
-      .option("collection",MONGODB_USER_RECS)
-      .mode("overwrite")
-      .format("com.mongodb.spark.sql")
-      .save()
-
-    //计算电影相似度矩阵
-
-    //获取电影的特征矩阵
-//    val movieFeatures = model.productFeatures.map{
-//      case (mid,features) => (mid,new DoubleMatrix(features))
-//    }
-//
-//    val movieRecs = movieFeatures.cartesian(movieFeatures)// RDD[((Int, DoubleMatrix), (Int, DoubleMatrix))]
-//      .filter{
-//        case (a,b) => a._1 != b._1
-//      }.map{
-//      case (a,b) =>
-//        val simScore = this.consinSim(a._2,b._2)//电影相似性评分
-//        (a._1,(b._1,simScore))
-//      }
-//      .filter(_._2._2 > 0.6)
-//      .groupByKey()//(Int, Iterable[(Int, Double)])
-//      .map{
-//        case (mid,items) =>
-//          MovieRecs(mid,items.toList.map(x=> Recommendation(x._1,x._2)))
-//      }.toDF
-//
-//    movieRecs
-//      .write
+    //把预测结果写回mongodb
+//    userRecs.write
 //      .option("uri",mongoConfig.uri)
-//      .option("collection",MONGO_MOVIE_RECS)
+//      .option("collection",MONGODB_USER_RECS)
 //      .mode("overwrite")
 //      .format("com.mongodb.spark.sql")
 //      .save()
+
+    //计算离线电影相似度矩阵
+
+    //获取电影的特征矩阵
+    val movieFeatures = model.productFeatures.map{
+      case (mid,features) => (mid,new DoubleMatrix(features))
+    }
+
+    //cartesian笛卡尔积
+    val movieRecs = movieFeatures.cartesian(movieFeatures)// RDD[((Int, DoubleMatrix), (Int, DoubleMatrix))]
+      .filter{
+        case (a,b) => a._1 != b._1 //过滤掉自己与自己的笛卡尔积
+      }.map{
+      case (a,b) =>
+        val simScore = this.consinSim(a._2,b._2)//电影相似性评分
+        (a._1,(b._1,simScore))
+      }
+      .filter(_._2._2 > 0.6)
+      .groupByKey()//(Int, Iterable[(Int, Double)])
+      .map{
+        case (mid,items) =>
+          MovieRecs(mid,items.toList.map(x=> Recommendation(x._1,x._2)))
+      }.toDF
+
+    movieRecs
+      .write
+      .option("uri",mongoConfig.uri)
+      .option("collection",MONGO_MOVIE_RECS)
+      .mode("overwrite")
+      .format("com.mongodb.spark.sql")
+      .save()
 
     spark.close()
   }
