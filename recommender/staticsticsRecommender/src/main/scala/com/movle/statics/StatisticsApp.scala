@@ -76,9 +76,10 @@ object StatisticsApp extends App {
 //  staticsRecommender.rateMore(spark)
 
   //近期热门电影
-  staticsRecommender.rateMoreRecently(spark)
+//  staticsRecommender.rateMoreRecently(spark)
 
-//  staticsRecommender.genresTop10(spark)(movies)
+  //统计类别前10的电影，以及离线统计电影平均分
+  staticsRecommender.genresTop10(spark)(movies)
 
   ratings.unpersist()
   movies.unpersist()
