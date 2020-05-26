@@ -14,7 +14,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.transport.client.PreBuiltTransportClient
 /**
  * @ClassName DataLoader
- * @MethodDesc: TODO DataLoader功能介绍
+ * @MethodDesc: 将Data倒入ES和Mongdb
  * @Author Movle
  * @Date 5/26/20 10:24 上午
  * @Version 1.0
@@ -40,27 +40,27 @@ object DataLoader {
 
   def main(args: Array[String]): Unit = {
 
-    val DATAFILE_MOVIES = "H:\\tmp_files\\reco_data\\small\\movies.csv"
+    val DATAFILE_MOVIES = "/Users/macbook/TestInfo/reco_data/movies.csv"
 
-    val DATAFILE_RATINGS = "H:\\tmp_files\\reco_data\\small\\ratings.csv"
+    val DATAFILE_RATINGS = "/Users/macbook/TestInfo/reco_data/ratings.csv"
 
-    val DATAFILE_TAGS = "H:\\tmp_files\\reco_data\\small\\tags.csv"
+    val DATAFILE_TAGS = "/Users/macbook/TestInfo/reco_data/tags.csv"
 
     val params = scala.collection.mutable.Map[String,Any]()
     params += "spark.cores" -> "local"
     params += "spark.name" -> "DataLoader"
-    params += "mongo.uri" -> "mongodb://192.168.109.141:27017/recom"
+    params += "mongo.uri" -> "mongodb://192.168.31.141:27017/recom"
     params += "mongo.db" -> "recom"
-    params += "es.httpHosts" -> "192.168.109.141:9200"
-    params += "es.transportHosts" -> "192.168.109.141:9300"
+    params += "es.httpHosts" -> "192.168.31.141:9200"
+    params += "es.transportHosts" -> "192.168.31.141:9300"
     params += "es.index" -> "recom"
     params += "es.cluster.name" -> "my-application"
 
-    //定义MongoDB配置对象
+    //定义MongoDB配置对象(隐式参数)
     implicit val mongoConf = new MongoConfig(params("mongo.uri").asInstanceOf[String],
       params("mongo.db").asInstanceOf[String])
 
-    //定义ES配置对象
+    //定义ES配置对象（隐式参数）
     implicit val esConf = new ESConfig(params("es.httpHosts").asInstanceOf[String],
       params("es.transportHosts").asInstanceOf[String],
       params("es.index").asInstanceOf[String],
@@ -108,23 +108,23 @@ object DataLoader {
     //将数据写入到MongoDB
     storeDataInMongo(movieDF,ratingDF,tagDF)
 
-    //引入内置函数库
-    import org.apache.spark.sql.functions._
-    //将数据保存到ES中
-    movieDF.cache()
-    tagDF.cache()
-
-    val tagCollectDF = tagDF.groupBy("mid").agg(concat_ws("|",collect_set("tag")).as("tags"))
-
-    val esMovieDF = movieDF.join(tagCollectDF,Seq("mid","mid"),"left")
-      .select("mid","name","descri","timelong","issue","shoot","language","genres","actors","directors","tags")
-
-    //    esMovieDF.show(30)
-
-    storeDataInES(esMovieDF)
-
-    movieDF.unpersist()
-    tagDF.unpersist()
+//    //引入内置函数库
+//    import org.apache.spark.sql.functions._
+//    //将数据保存到ES中
+//    movieDF.cache()
+//    tagDF.cache()
+//
+//    val tagCollectDF = tagDF.groupBy("mid").agg(concat_ws("|",collect_set("tag")).as("tags"))
+//
+//    val esMovieDF = movieDF.join(tagCollectDF,Seq("mid","mid"),"left")
+//      .select("mid","name","descri","timelong","issue","shoot","language","genres","actors","directors","tags")
+//
+//    //    esMovieDF.show(30)
+//
+//    storeDataInES(esMovieDF)
+//
+//    movieDF.unpersist()
+//    tagDF.unpersist()
 
     spark.close()
 
@@ -181,6 +181,7 @@ object DataLoader {
     //创建到MongoDB的连接
     val mongoClient = MongoClient(MongoClientURI(mongoConfig.uri))
 
+    //删除表
     mongoClient(mongoConfig.db)(MOVIES_COLLECTION_NAME).dropCollection()
     mongoClient(mongoConfig.db)(TAGS_COLLECTION_NAME).dropCollection()
     mongoClient(mongoConfig.db)(RATINGS_COLLECTION_NAME).dropCollection()
