@@ -35,6 +35,7 @@ object DataLoader {
   //ES TYPE 名称
   val ES_TAG_TYPE_NAME = "Movie"
 
+  //正则表达式
   val ES_HOST_PORT_REGEX = "(.+):(\\d+)".r
 
 
@@ -106,25 +107,26 @@ object DataLoader {
     ).toDF()
 
     //将数据写入到MongoDB
-    storeDataInMongo(movieDF,ratingDF,tagDF)
+    //storeDataInMongo(movieDF,ratingDF,tagDF)
 
-//    //引入内置函数库
-//    import org.apache.spark.sql.functions._
-//    //将数据保存到ES中
-//    movieDF.cache()
-//    tagDF.cache()
-//
-//    val tagCollectDF = tagDF.groupBy("mid").agg(concat_ws("|",collect_set("tag")).as("tags"))
-//
-//    val esMovieDF = movieDF.join(tagCollectDF,Seq("mid","mid"),"left")
-//      .select("mid","name","descri","timelong","issue","shoot","language","genres","actors","directors","tags")
-//
-//    //    esMovieDF.show(30)
-//
-//    storeDataInES(esMovieDF)
-//
-//    movieDF.unpersist()
-//    tagDF.unpersist()
+    //引入内置函数库
+    import org.apache.spark.sql.functions._
+    //将数据保存到ES中
+    movieDF.cache()
+    tagDF.cache()
+
+    val tagCollectDF = tagDF.groupBy("mid").agg(concat_ws("|",collect_set("tag")).as("tags"))
+
+    val esMovieDF = movieDF.join(tagCollectDF,Seq("mid","mid"),"left")
+      .select("mid","name","descri","timelong","issue","shoot","language","genres","actors","directors","tags")
+
+    //    esMovieDF.show(30)
+
+    //esMovieDF.show()
+    storeDataInES(esMovieDF)
+
+    movieDF.unpersist()
+    tagDF.unpersist()
 
     spark.close()
 
@@ -143,10 +145,10 @@ object DataLoader {
 
     // ESConfig 对象中 transportHosts 属性保存所有es节点信息
     //以下方法要将所有节点遍历出来
-    //"192.168.109.141:9300,192.168.109.142:9300,192.168.109.143:9300"
+    //"192.168.31.141:9300,192.168.31.142:9300,192.168.31.143:9300"
     esConf.transportHosts.split(",")
       .foreach{
-        //192.168.109.141:9300
+        //192.168.31.141:9300 用正则表达式
         case ES_HOST_PORT_REGEX(host:String,port:String) =>
           esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host),port.toInt))
       }
