@@ -16,6 +16,7 @@
         <module>dataloader</module>
         <module>staticsticsRecommender</module>
         <module>offlineRecommender</module>
+        <module>StreamingRecommender</module>
     </modules>
 
     <dependencyManagement>

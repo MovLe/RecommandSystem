@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="dataloader" />
+        <module name="StreamingRecommender" />
         <module name="offlineRecommender" />
         <module name="staticsticsRecommender" />
       </profile>
