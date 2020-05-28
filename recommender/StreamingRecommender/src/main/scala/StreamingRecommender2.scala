@@ -35,7 +35,6 @@ object StreamingRecommender2 {
 
     val ssc = new StreamingContext(sc,Seconds(3))
 
-
     val kafkaPara=Map(
       "bootstrap.servers" -> "192.168.31.141:9092",
       "key.deserializer" -> classOf[StringDeserializer],
