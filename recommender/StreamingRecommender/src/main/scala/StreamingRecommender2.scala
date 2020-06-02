@@ -50,11 +50,14 @@ object StreamingRecommender2 {
         (attr(0).toInt,attr(1).toInt,attr(2).toDouble,attr(3).toInt)
 
     }
+
     ratingStream.foreachRDD{
       rdd=>
         rdd.map{
           case(uid,mid,score,timestamp) =>
             println("get data from kafka")
+
+            //实时计算逻辑实现
         }.collect()
     }
 
