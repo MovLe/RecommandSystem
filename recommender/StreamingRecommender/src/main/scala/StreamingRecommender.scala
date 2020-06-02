@@ -16,6 +16,7 @@ object ConnHelper {
 }
 
 /**
+ * Created by root on 2019/12/14
  *
  * 实时推荐引擎.
  *
@@ -47,7 +48,7 @@ object StreamingRecommender {
 
 
     val sparkConf = new SparkConf().setAppName("StreamingRecommender")
-      .setMaster(config("spark.cores"))
+      .setMaster(config("spark.cores")).setExecutorEnv("spark.executor.memory","2g")
 
     val spark = SparkSession.builder().config(sparkConf).getOrCreate()
 
@@ -107,7 +108,7 @@ object StreamingRecommender {
             //从redis中获取当前最近的M次评分
             val userRecentlyRatings = getUserRecentlyRating(MAX_USER_RATINGS_NUM,uid,ConnHelper.jedis)
 
-            //获取电影P最相似的K个电影 共享变量, 也可以直接从mongodb里取
+            //获取电影P最相似的K个电影 共享变量
             val simMovies = getTopSimMovies(MAX_SIM_MOVIES_NUM,mid,uid,simMoviesMatrixBroadCast.value)
 
             //计算待选电影的推荐优先级
@@ -257,4 +258,12 @@ object StreamingRecommender {
     }.toArray
 
   }
+
+  /**
+   * 我们不能改变世界，但我们可以在有限的空间内改变自己。
+   *
+   * 在春种秋收之时，储备足够过冬的粮食，技能，和人脉，同时调整好自己的心态。
+   *
+   * 未来没有那么好，但其实也没有那么糟。答案总会有，只要你耐心寻找。
+   */
 }
