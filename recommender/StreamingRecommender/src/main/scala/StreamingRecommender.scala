@@ -46,7 +46,6 @@ object StreamingRecommender {
       "mongo.db"->"recom"
     )
 
-
     val sparkConf = new SparkConf().setAppName("StreamingRecommender")
       .setMaster(config("spark.cores")).setExecutorEnv("spark.executor.memory","2g")
 
