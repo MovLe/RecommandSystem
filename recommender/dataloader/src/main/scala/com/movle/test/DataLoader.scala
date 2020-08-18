@@ -174,7 +174,6 @@ object DataLoader {
       .format("org.elasticsearch.spark.sql")
       .save(movieTypeName)
 
-
   }
 
 

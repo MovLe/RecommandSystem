@@ -191,7 +191,7 @@ object StreamingRecommender {
     math.log(m) / math.log(2)
   }
   /**
-   *    获取电影之间的相似度
+   *   获取电影之间的相似度
    * @param simMovies
    * @param userRatingMovie
    * @param topSimMovie

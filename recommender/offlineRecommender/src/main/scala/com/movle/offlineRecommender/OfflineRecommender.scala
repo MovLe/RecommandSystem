@@ -87,6 +87,9 @@ object OfflineRecommender {
     val (rank,iterations,lambda) = (50,5,0.01)
 
     //模型
+    //rank指的是矩阵分解Matrix Factorization 时，将原本A(m x n)矩阵分解为，矩阵X(m x rank)与矩阵Y(rank x n)
+    //iterations 为ALS算法重复计算次数
+    //Lambda为建议值
     val model = ALS.train(trainData,rank,iterations,lambda)
 
     //计算离线用户推荐电影矩阵
