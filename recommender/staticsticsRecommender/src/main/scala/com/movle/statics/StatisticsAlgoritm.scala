@@ -74,6 +74,7 @@ object staticsRecommender {
 
     import spark.implicits._
 
+    //笛卡尔积
     val genresTopMovies = genresRDD.cartesian(moviesWithScoreDF.rdd).filter{
       case (genres,row) => {
         row.getAs[String]("genres").toLowerCase.contains(genres.toLowerCase)
